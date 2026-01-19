@@ -1,0 +1,37 @@
+name: Run tests
+
+on:
+  pull_request:
+
+jobs:
+  run-test:
+    strategy:
+      matrix:
+        python-version: [ 3.11, 3.14 ]
+        os: [ ubuntu-latest ]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          uv run echo done
+
+      - name: Checks with pre-commit
+        run: |
+          uv run pre-commit run --all-files
+
+      - name: Test with pytest
+        run: |
+          uv run pytest
+
+      - name: Check that documentation can be built.
+        run: |
+          uv run mkdocs build
