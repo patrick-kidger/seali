@@ -1,3 +1,3 @@
 # Commands
 
-::: tinycli.command
+::: seali.command

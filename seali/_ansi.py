@@ -41,13 +41,13 @@ class RGB:
 
     Use within an f-string as
     ```python
-    colour = tinycli.RGB(r=10, g=255, b=45)
-    f"...{colour}coloured text here{tinycli.RESET}..."
+    colour = seali.RGB(r=10, g=255, b=45)
+    f"...{colour}coloured text here{seali.RESET}..."
     ```
     to set the foreground (text) colour, and
     ```python
-    colour = tinycli.RGB(r=10, g=255, b=45)
-    f"...{colour.bg}coloured background here{tinycli.RESET}..."
+    colour = seali.RGB(r=10, g=255, b=45)
+    f"...{colour.bg}coloured background here{seali.RESET}..."
     ```
     to set the background colour.
     """

@@ -47,13 +47,13 @@ def group(
     - `default`: a command to run if no subcommand is provided. Mutually exclusive with
         `name`, `help` and `version`.
     - `name`: name. Either this or `default` must be provided.
-    - `help`: help message, as [`tinycli.command`][]. Mutually exclusive with `default`.
-    - `version`: version, as [`tinycli.command`][]. Mutually exclusive with `default`.
+    - `help`: help message, as [`seali.command`][]. Mutually exclusive with `default`.
+    - `version`: version, as [`seali.command`][]. Mutually exclusive with `default`.
     - `subcommands`: a list/tuple of subcommands.
 
     **Returns:**
 
-    As `tinycli.command`.
+    As `seali.command`.
 
     **Command line inputs:**
 
@@ -70,15 +70,15 @@ def group(
     !!! Example
 
         ```python
-        import tinycli
+        import seali
 
-        @tinycli.command
+        @seali.command
         def bar(...): ...
 
-        @tinycli.command
+        @seali.command
         def baz(...): ...
 
-        foo = tinycli.group(name="foo", subcommands=[bar, baz])
+        foo = seali.group(name="foo", subcommands=[bar, baz])
 
         if __name__ == "__main__":
            foo()
@@ -87,7 +87,7 @@ def group(
     if default is not None and not isinstance(default, Command):
         raise TypeError(
             "`default` must be either `None` or a command (a callable decorated with "
-            "`tinycli.command`). It should not be a raw function."
+            "`seali.command`). It should not be a raw function."
         )
     if default is None:
         if name is None:
@@ -95,31 +95,31 @@ def group(
     else:
         if name is not None:
             raise ValueError(
-                "Got `tinycli.group(name=..., default=...)`. To provide a name "
+                "Got `seali.group(name=..., default=...)`. To provide a name "
                 "*and* a default command, then set the name for the default command "
-                "`tinycli.group(default=tinycli.command(<function with name 'name'>))`."
+                "`seali.group(default=seali.command(<function with name 'name'>))`."
             )
         name = default.fn.__name__
         if help is not None:
             raise ValueError(
-                "Got `tinycli.group(help=..., default=...)`. To provide documentation "
+                "Got `seali.group(help=..., default=...)`. To provide documentation "
                 "*and* a default command, then attach the documentation to the default "
-                "command directly: `tinycli.group(default=tinycli.command(help=...))`."
+                "command directly: `seali.group(default=seali.command(help=...))`."
             )
         help = default.help
         if version is not None:
             raise ValueError(
-                "Got `tinycli.group(version=..., default=...)`. To provide a version "
+                "Got `seali.group(version=..., default=...)`. To provide a version "
                 "*and* a default command, then attach the version to the default "
                 "command directly: "
-                "`tinycli.group(default=tinycli.command(version=...))`."
+                "`seali.group(default=seali.command(version=...))`."
             )
         version = default.version
     for value in subcommands:
         if not isinstance(value, Command):
             raise TypeError(
                 "subcommands must be commands (a callable decorated with "
-                "`tinycli.command`). They should not be raw functions."
+                "`seali.command`). They should not be raw functions."
             )
 
     subcommand_lookup = {s.fn.__name__: s for s in subcommands}

@@ -1,4 +1,4 @@
-<h1 align='center'><code>tinycli</code></h1>
+<h1 align='center'>🌊<code>seali</code></h1>
 
 A does-one-thing-well library for building CLIs.<br>
 Designed to be trivially easy to use.
@@ -7,22 +7,22 @@ Designed to be trivially easy to use.
 - Subcommands;
 - Fish completions;
 - Elegant `--help` messages (with line-breaks, tab-stops, and ANSI escape codes);
-- Tiny day-to-day API: `tinycli.{command, group, Doc, Style}`.
+- Tiny day-to-day API: `seali.{command, group, Doc, Style}`.
 
 _This exists because I wanted ✨pretty help text✨ beyond what any other CLI library supports._
 
 ## Installation
 
 ```bash
-pip install tinycli
+pip install seali
 ```
 
 ## Example
 
 ```python
-import tinycli
+import seali
 
-@tinycli.command
+@seali.command
 def my_program(pos: str, /, *, someflag: bool = False):
     ...
 
@@ -36,11 +36,11 @@ python this_file.py foobar --someflag
 
 ## Documentation
 
-Available at <https://docs.kidger.site/tinycli>.
+Available at <https://docs.kidger.site/seali>.
 
 ## Alternatives
 
-- [`fire`](https://github.com/google/python-fire) was the main inspiration for `tinycli`.<br>
+- [`fire`](https://github.com/google/python-fire) was the main inspiration for `seali`.<br>
     I love their 'trivial to use' UX: just call the library on your function. Relative to `fire`, we aim to minimise their massive surface area (they also allow you to decorate classes, dictionaries, ..., have an interactive mode, a trace mode, ...), and fix some UX issues (e.g. `-s` short flags, help messages) for a simpler more opinionated library.
 
 - [`click`](https://github.com/pallets/click/) is the 'standard' choice for Python CLIs.<br>

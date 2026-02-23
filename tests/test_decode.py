@@ -3,8 +3,8 @@ import sys
 from typing import Literal, Union
 
 import pytest
-from tinycli import Dir, NoComplete
-from tinycli._decode import decode, DecodeError
+from seali import Dir, NoComplete
+from seali._decode import decode, DecodeError
 
 
 def test_decode_none():

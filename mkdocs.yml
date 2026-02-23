@@ -23,7 +23,7 @@ theme:
              name: Switch to light mode
     icon:
         repo: fontawesome/brands/github  # GitHub logo in top right
-        logo: "material/code-greater-than"
+        logo: "material/tsunami"
     favicon: "_static/favicon.png"
     custom_dir: "docs/_overrides"  # Overriding part of the HTML
 
@@ -32,13 +32,13 @@ theme:
     twitter_url: "https://twitter.com/PatrickKidger"
     bluesky_url: "https://PatrickKidger.bsky.social"
 
-site_name: tinycli
-site_description: The documentation for the tinycli software library.
+site_name: seali
+site_description: The documentation for the seali software library.
 site_author: Patrick Kidger
-site_url: https://docs.kidger.site/tinycli
+site_url: https://docs.kidger.site/seali
 
-repo_url: https://github.com/patrick-kidger/tinycli
-repo_name: patrick-kidger/tinycli
+repo_url: https://github.com/patrick-kidger/seali
+repo_name: patrick-kidger/seali
 edit_uri: ""
 
 strict: false  # Don't allow warnings during the build process
@@ -72,7 +72,7 @@ plugins:
     - ipynb
     - hippogriffe:
         extra_public_objects:
-            - tinycli.Command
+            - seali.Command
     - mkdocstrings:
         handlers:
             python:

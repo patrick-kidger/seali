@@ -1,4 +1,4 @@
-# tinycli
+# 🌊 seali
 
 A does-one-thing-well library for building CLIs.
 
@@ -6,22 +6,22 @@ A does-one-thing-well library for building CLIs.
 - Subcommands;
 - Fish completions;
 - Elegant `--help` messages (with line-breaks, tab-stops, and ANSI escape codes);
-- Tiny day-to-day API: `tinycli.{command, group, Doc, Style}`.
+- Tiny day-to-day API: `seali.{command, group, Doc, Style}`.
 
 _This exists because I wanted ✨pretty help text✨ beyond what any other CLI library supports._
 
 ## Installation
 
 ```bash
-pip install tinycli
+pip install seali
 ```
 
 ## Example
 
 ```python
-import tinycli
+import seali
 
-@tinycli.command
+@seali.command
 def my_program(pos: str, /, *, someflag: bool = False):
     ...
 

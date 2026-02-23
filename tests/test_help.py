@@ -1,8 +1,8 @@
 import re
 
 import pytest
-import tinycli
-from tinycli._help import _insert_tabstop_at_index, _textwrap
+import seali
+from seali._help import _insert_tabstop_at_index, _textwrap
 
 
 _ansi_regex = re.compile(r"(\x1b\[[;?0-9]*[a-zA-Z])")
@@ -43,7 +43,7 @@ operation
 
 
 def test_doc_basic(capfd):
-    style = tinycli.Style(
+    style = seali.Style(
         cmd="wahoo",
         heading=lambda x: f"# {x}:",
         positional=">",
@@ -51,7 +51,7 @@ def test_doc_basic(capfd):
         indent=2,
         width=50,
     )
-    help = tinycli.Help(
+    help = seali.Help(
         """
         $USAGE
 
@@ -71,7 +71,7 @@ def test_doc_basic(capfd):
         option_prompts=dict(opt="foo"),
     )
 
-    @tinycli.command(help=help)
+    @seali.command(help=help)
     def foo(pos: int, /, *, opt: str, flag: bool = False):
         del pos, opt, flag
 
@@ -104,16 +104,16 @@ thoughts that go on for quite a while and will need
 
 
 def test_subcommand(capfd):
-    subhelp = tinycli.Help("subhelp", tinycli.Style(), {}, {})
-    mainhelp = tinycli.Help(
-        "mainhelp", tinycli.Style(), dict(subcommand="subcommand"), {}
+    subhelp = seali.Help("subhelp", seali.Style(), {}, {})
+    mainhelp = seali.Help(
+        "mainhelp", seali.Style(), dict(subcommand="subcommand"), {}
     )
 
-    @tinycli.command(help=subhelp)
+    @seali.command(help=subhelp)
     def sub():
         pass
 
-    main = tinycli.group(name="main", help=mainhelp, subcommands=[sub])
+    main = seali.group(name="main", help=mainhelp, subcommands=[sub])
 
     with pytest.raises(SystemExit):
         main(["--help"])

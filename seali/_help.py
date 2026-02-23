@@ -168,7 +168,7 @@ def _to_callable(x: str | Callable[[str], str]):
 class Style:
     """Defines the styles (what to bold, what to colour, etc.) within a help message.
 
-    This is a separate class to `tinycli.Help` to allow for manually calling its methods
+    This is a separate class to `seali.Help` to allow for manually calling its methods
     whilst constructing the help message, e.g. to insert a custom heading.
     """
 
@@ -192,8 +192,8 @@ class Style:
         """Most of the following arguments are prefixed to some part of the help
         message. This can be used either to add raw characters (e.g. use 'heading="# "
         to add a '#' before all headings) or to add ANSI escape codes (e.g. use
-        `heading=tinycli.BOLD` to make all headings both) – or both (e.g.
-        `heading=tinycli.BOLD + "# "`)!
+        `heading=seali.BOLD` to make all headings both) – or both (e.g.
+        `heading=seali.BOLD + "# "`)!
 
         **Arguments:**
 
@@ -369,7 +369,7 @@ Help.__init__.__doc__ = """**Arguments:**
     Use a `\\v` anywhere within a paragraph to create a hard line break, and up to one
     `\\f` per paragraph to mark the indent which text should wrap to.
 
-- `style`: a [`tinycli.Style`][] object describing how headings etc. should be
+- `style`: a [`seali.Style`][] object describing how headings etc. should be
     formatted.
 
 - `arguments`: a dictionary, mapping argument name to the description that appears in

@@ -1,6 +1,6 @@
 # FAQ
 
-## How does `tinycli` compare to `click`, `fire`, etc?
+## How does `seali` compare to `click`, `fire`, etc?
 
 As compared to the alternatives, we aim to be much simpler (even simpler than `fire`!)
 
@@ -23,11 +23,11 @@ For example, `click` and `fire` follow the first strategy, whilst `clap` (in the
 
 The reason we went for the first strategy is because it offers a neater generalisation to subcommands: they are obtained as an implementation of the existing logic, rather than requiring a conceptually separate identify-the-right-subcommand-i.e.-dataclass step.
 
-### Separate `tinycli.Help` versus using the function docstring?
+### Separate `seali.Help` versus using the function docstring?
 
 We do not use function docstrings because docstrings cannot be f-strings. (Niche Python fact for you there.) It's fairly common to want to interpolate in extra information (like ANSI escape codes for colours).
 
-### Separate `tinycli.Help` object vs attaching the documentation to each argument?
+### Separate `seali.Help` object vs attaching the documentation to each argument?
 
 An alternate approach to defining the documentation would have been to attach it to each argument – probably each type annotation – like:
 
@@ -35,7 +35,7 @@ An alternate approach to defining the documentation would have been to attach it
 some_arg: Help[int, "arg doc here"]
 ```
 
-Likewise we could imagine introducing some kind of `Option(prompt="foo", doc="bar")`, instead of the existing approach that requires matching up each function arguments `argname` with `tinycli.Help(arguments=dict(argname=...))` and `tinycli.Help(option_prompts=dict(argname=...))`
+Likewise we could imagine introducing some kind of `Option(prompt="foo", doc="bar")`, instead of the existing approach that requires matching up each function arguments `argname` with `seali.Help(arguments=dict(argname=...))` and `seali.Help(option_prompts=dict(argname=...))`
 
 We decide against this for two reasons:
 

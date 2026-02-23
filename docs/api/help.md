@@ -1,11 +1,11 @@
 # Help messages
 
-::: tinycli.Help
+::: seali.Help
     options:
         members:
             - __init__
 
-::: tinycli.Style
+::: seali.Style
     options:
         members:
             - __init__
@@ -18,18 +18,18 @@
 
     The following:
     ```python
-    import tinycli
+    import seali
 
-    style = tinycli.Style(
-      cmd=tinycli.BOLD,
-      heading=lambda x: tinycli.BOLD + x + ":",
-      positional=tinycli.RED,
-      option_or_flag=tinycli.RED,
+    style = seali.Style(
+      cmd=seali.BOLD,
+      heading=lambda x: seali.BOLD + x + ":",
+      positional=seali.RED,
+      option_or_flag=seali.RED,
       indent=2,
       width=80,
     )
 
-    help = tinycli.Help(
+    help = seali.Help(
       f"""
       Help message here. Text flows like Markdown: spaces
       and newlines are equivalent, and paragraphs reflow to the
@@ -62,7 +62,7 @@
       $OPTIONS_AND_FLAGS
 
       Use ANSI escape codes to create bold, colour, etc:
-      {tinycli.BOLD}{tinycli.RED}This text will be bold and in red{tinycli.RESET}
+      {seali.BOLD}{seali.RED}This text will be bold and in red{seali.RESET}
       """,
       style=style,
       arguments=dict(
@@ -73,7 +73,7 @@
       option_prompts=dict(opt="foo"),
     )
 
-    @tinycli.command(help=help)
+    @seali.command(help=help)
     def my_program(pos: str, /, *, opt: int, flag: bool = False): ...
 
     if __name__ == "__main__":

@@ -1,17 +1,17 @@
 import pytest
-import tinycli
+import seali
 
 
 def test_default_not_wrapped_in_command():
     def foo():
         pass
 
-    @tinycli.command
+    @seali.command
     def bar():
         pass
 
     with pytest.raises(TypeError, match="`default` must be either `None` or a command"):
-        tinycli.group(default=foo, subcommands=[bar])  # pyright: ignore[reportArgumentType]
+        seali.group(default=foo, subcommands=[bar])  # pyright: ignore[reportArgumentType]
 
 
 def test_subcommand_not_wrapped_in_command():
@@ -19,35 +19,35 @@ def test_subcommand_not_wrapped_in_command():
         pass
 
     with pytest.raises(TypeError, match="subcommands must be commands"):
-        tinycli.group(name="foo", subcommands=[bar])  # pyright: ignore[reportArgumentType]
+        seali.group(name="foo", subcommands=[bar])  # pyright: ignore[reportArgumentType]
 
 
-@tinycli.command
+@seali.command
 def default_without_args():
     return 0
 
 
-@tinycli.command
+@seali.command
 def default_with_arg(x: str, /):
     return x
 
 
-@tinycli.command
+@seali.command
 def default_with_positional_default(x: str = "hi", /):
     return x
 
 
-@tinycli.command
+@seali.command
 def default_with_varargs(*x: str):
     return x
 
 
-@tinycli.command
+@seali.command
 def default_with_keyword(*, x: int):
     return x
 
 
-@tinycli.command
+@seali.command
 def default_with_keyword_default(*, x: int = 3):
     return x
 
@@ -65,11 +65,11 @@ def default_with_keyword_default(*, x: int = 3):
     ),
 )
 def test_default(default):
-    @tinycli.command
+    @seali.command
     def foo(x: int = 9, /):
         return x
 
-    cmd = tinycli.group(
+    cmd = seali.group(
         name="cmd" if default is None else None,
         default=default,
         subcommands=[foo],
@@ -107,29 +107,29 @@ def test_default(default):
 
 
 def test_group():
-    @tinycli.command
+    @seali.command
     def new(commit: str, /):
         return "new", commit
 
-    @tinycli.command
+    @seali.command
     def describe(commit: str, /):
         return "describe", commit
 
-    @tinycli.command
+    @seali.command
     def add(filename: str, /):
         return "fileadd", filename
 
-    @tinycli.command
+    @seali.command
     def exec(*args: str):
         return "utilexec", args
 
-    jj = tinycli.group(
+    jj = seali.group(
         name="jj",
         subcommands=[
             new,
             describe,
-            tinycli.group(name="file", subcommands=[add]),
-            tinycli.group(name="util", subcommands=[exec]),
+            seali.group(name="file", subcommands=[add]),
+            seali.group(name="util", subcommands=[exec]),
         ],
     )
 
@@ -167,22 +167,22 @@ def test_group():
 
 
 def test_group_with_keywords():
-    @tinycli.command
+    @seali.command
     def foo(*, x: int = 3):
         return x
 
-    bar = tinycli.group(name="bar", subcommands=[foo])
+    bar = seali.group(name="bar", subcommands=[foo])
     assert bar(["foo"]) == 3
     assert bar(["foo", "--x", "5"]) == 5
     assert bar(["foo", "-x", "5"]) == 5
     assert bar(["foo", "--x=5"]) == 5
     assert bar(["foo", "-x=5"]) == 5
 
-    @tinycli.command
+    @seali.command
     def foo2(*, long: int = 3):
         return long
 
-    bar = tinycli.group(name="bar", subcommands=[foo2])
+    bar = seali.group(name="bar", subcommands=[foo2])
     assert bar(["foo2"]) == 3
     assert bar(["foo2", "--long", "5"]) == 5
     assert bar(["foo2", "-l", "5"]) == 5
@@ -191,15 +191,15 @@ def test_group_with_keywords():
 
 
 def test_group_with_version(capfd):
-    @tinycli.command
+    @seali.command
     def foo():
         return "foo"
 
-    @tinycli.command
+    @seali.command
     def bar():
         return "bar"
 
-    cmd = tinycli.group(name="cmd", version="1.2.3", subcommands=[foo, bar])
+    cmd = seali.group(name="cmd", version="1.2.3", subcommands=[foo, bar])
 
     # Version should work at group level
     with pytest.raises(SystemExit) as exc_info:
@@ -220,15 +220,15 @@ def test_group_with_version(capfd):
 
 
 def test_group_version_from_default_command(capfd):
-    @tinycli.command(version="2.0.0")
+    @seali.command(version="2.0.0")
     def default():
         return "default"
 
-    @tinycli.command
+    @seali.command
     def foo():
         return "foo"
 
-    cmd = tinycli.group(default=default, subcommands=[foo])
+    cmd = seali.group(default=default, subcommands=[foo])
 
     # Version should be inherited from default command
     with pytest.raises(SystemExit) as exc_info:
@@ -249,16 +249,16 @@ def test_group_version_from_default_command(capfd):
 
 
 def test_group_version_and_default_conflict():
-    @tinycli.command(version="1.0.0")
+    @seali.command(version="1.0.0")
     def default():
         return "default"
 
-    @tinycli.command
+    @seali.command
     def foo():
         return "foo"
 
     # Should raise error when both version and default with version are provided
     with pytest.raises(
-        ValueError, match="Got `tinycli.group\\(version=..., default=...\\)`"
+        ValueError, match="Got `seali.group\\(version=..., default=...\\)`"
     ):
-        tinycli.group(version="2.0.0", default=default, subcommands=[foo])  # pyright: ignore[reportCallIssue]
+        seali.group(version="2.0.0", default=default, subcommands=[foo])  # pyright: ignore[reportCallIssue]

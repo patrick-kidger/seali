@@ -9,7 +9,7 @@ _Callable = TypeVar("_Callable", bound=Callable)
 
 
 def doc_remove_return(fn: _Callable) -> _Callable:
-    if getattr(typing, "GENERATING_DOCUMENTATION", "") == "tinycli":
+    if getattr(typing, "GENERATING_DOCUMENTATION", "") == "seali":
         sig = inspect.signature(fn)
         sig = sig.replace(return_annotation=inspect.Signature.empty)
         object.__setattr__(fn, "__signature__", sig)
@@ -21,7 +21,7 @@ class _DocAttr:
 
 
 def doc_attr(obj: _T, doc: None | str) -> _T:
-    if getattr(typing, "GENERATING_DOCUMENTATION", "") == "tinycli":
+    if getattr(typing, "GENERATING_DOCUMENTATION", "") == "seali":
         obj = _DocAttr()  # pyright: ignore[reportAssignmentType]
         obj.__doc__ = doc
     return obj

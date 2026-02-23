@@ -2,11 +2,11 @@ import pathlib
 from typing import Literal
 
 import pytest
-import tinycli
+import seali
 
 
 def test_positional_arg():
-    @tinycli.command
+    @seali.command
     def foo(x: int, /):
         return x
 
@@ -16,7 +16,7 @@ def test_positional_arg():
 
 
 def test_named_arg():
-    @tinycli.command
+    @seali.command
     def foo(*, x: int):
         return x
 
@@ -28,7 +28,7 @@ def test_named_arg():
 
 
 def test_multiple_positional_args():
-    @tinycli.command
+    @seali.command
     def foo(x: int, y: str, z: float, /):
         return (x, y, z)
 
@@ -36,7 +36,7 @@ def test_multiple_positional_args():
 
 
 def test_missing_positional_arg():
-    @tinycli.command
+    @seali.command
     def foo(x: int, y: str, /):
         return (x, y)
 
@@ -45,7 +45,7 @@ def test_missing_positional_arg():
 
 
 def test_short_flag():
-    @tinycli.command
+    @seali.command
     def foo(*, xyz: int):
         return xyz
 
@@ -53,7 +53,7 @@ def test_short_flag():
 
 
 def test_long_flag():
-    @tinycli.command
+    @seali.command
     def foo(*, my_option: int):
         return my_option
 
@@ -61,7 +61,7 @@ def test_long_flag():
 
 
 def test_keyword_equals_syntax():
-    @tinycli.command
+    @seali.command
     def foo(*, value: int):
         return value
 
@@ -70,7 +70,7 @@ def test_keyword_equals_syntax():
 
 
 def test_keyword_space_syntax():
-    @tinycli.command
+    @seali.command
     def foo(*, value: int):
         return value
 
@@ -79,7 +79,7 @@ def test_keyword_space_syntax():
 
 
 def test_boolean_flag():
-    @tinycli.command
+    @seali.command
     def foo(*, my_flag: bool = False):
         return my_flag
 
@@ -89,7 +89,7 @@ def test_boolean_flag():
 
 
 def test_keyword_with_default():
-    @tinycli.command
+    @seali.command
     def foo(*, option: str = "default_value"):
         return option
 
@@ -98,7 +98,7 @@ def test_keyword_with_default():
 
 
 def test_keyword_without_default():
-    @tinycli.command
+    @seali.command
     def foo(*, required: int):
         return required
 
@@ -109,7 +109,7 @@ def test_keyword_without_default():
 
 
 def test_missing_keyword_value():
-    @tinycli.command
+    @seali.command
     def foo(*, value: int):
         return value
 
@@ -120,7 +120,7 @@ def test_missing_keyword_value():
 
 
 def test_mixed_positional_and_keyword():
-    @tinycli.command
+    @seali.command
     def foo(x: int, y: str, /, *, option: int, flag: bool = False):
         return (x, y, option, flag)
 
@@ -130,7 +130,7 @@ def test_mixed_positional_and_keyword():
 
 
 def test_multiple_keywords():
-    @tinycli.command
+    @seali.command
     def foo(*, alpha: int, bravo: str, charlie: float):
         return (alpha, bravo, charlie)
 
@@ -145,7 +145,7 @@ def test_multiple_keywords():
 
 
 def test_unrecognized_keyword():
-    @tinycli.command
+    @seali.command
     def foo(*, valid: int):
         return valid
 
@@ -154,7 +154,7 @@ def test_unrecognized_keyword():
 
 
 def test_unrecognized_short_keyword():
-    @tinycli.command
+    @seali.command
     def foo(*, valid: int):
         return valid
 
@@ -165,7 +165,7 @@ def test_unrecognized_short_keyword():
 
 
 def test_invalid_argument_format():
-    @tinycli.command
+    @seali.command
     def foo(*, value: int):
         return value
 
@@ -176,7 +176,7 @@ def test_invalid_argument_format():
 
 
 def test_literal_type():
-    @tinycli.command
+    @seali.command
     def foo(*, choice: Literal["a", "b", "c"]):
         return choice
 
@@ -188,7 +188,7 @@ def test_literal_type():
 
 
 def test_none_type():
-    @tinycli.command
+    @seali.command
     def foo(*, value: int | None):
         return value
 
@@ -197,7 +197,7 @@ def test_none_type():
 
 
 def test_all_keywords_with_defaults():
-    @tinycli.command
+    @seali.command
     def foo(*, x: int = 1, y: int = 2, z: int = 3):
         return (x, y, z)
 
@@ -208,7 +208,7 @@ def test_all_keywords_with_defaults():
 
 
 def test_mixed_flags_and_options():
-    @tinycli.command
+    @seali.command
     def foo(*, verbose: bool = False, debug: bool = False, count: int, name: str):
         return (verbose, debug, count, name)
 
@@ -222,7 +222,7 @@ def test_mixed_flags_and_options():
 def test_bool_must_have_false_default():
     with pytest.raises(ValueError, match="all flags .* must have default `False`"):
 
-        @tinycli.command
+        @seali.command
         def foo(*, flag: bool = True):
             return flag
 
@@ -232,7 +232,7 @@ def test_bool_must_have_false_default():
 def test_bool_with_no_default_raises():
     with pytest.raises(ValueError, match="all flags .* must have default `False`"):
 
-        @tinycli.command
+        @seali.command
         def foo(*, flag: bool):
             return flag
 
@@ -244,7 +244,7 @@ def test_argument_name_validation_uppercase():
         ValueError, match="must use only lowercase letters or underscores"
     ):
 
-        @tinycli.command
+        @seali.command
         def foo(*, MyArg: int):
             return MyArg
 
@@ -256,7 +256,7 @@ def test_argument_name_validation_invalid_char():
         ValueError, match="must use only lowercase letters or underscores"
     ):
 
-        @tinycli.command
+        @seali.command
         def foo(*, my_arg_with_number1: int):
             return my_arg_with_number1
 
@@ -266,7 +266,7 @@ def test_argument_name_validation_invalid_char():
 def test_argument_name_validation_starts_with_letter():
     with pytest.raises(ValueError, match="must start with a lowercase letter"):
 
-        @tinycli.command
+        @seali.command
         def foo(*, _arg: int):
             return _arg
 
@@ -276,7 +276,7 @@ def test_argument_name_validation_starts_with_letter():
 def test_argument_must_be_annotated():
     with pytest.raises(ValueError, match="must be type-annotated"):
 
-        @tinycli.command
+        @seali.command
         def foo(*, arg):
             return arg
 
@@ -288,7 +288,7 @@ def test_regular_argument_not_allowed():
         ValueError, match="all arguments must be positional-only .* keyword-only"
     ):
 
-        @tinycli.command
+        @seali.command
         def foo(arg: int):
             return arg
 
@@ -296,7 +296,7 @@ def test_regular_argument_not_allowed():
 
 
 def test_string_values():
-    @tinycli.command
+    @seali.command
     def foo(*, name: str):
         return name
 
@@ -305,7 +305,7 @@ def test_string_values():
 
 
 def test_float_values():
-    @tinycli.command
+    @seali.command
     def foo(x: float, /):
         return x
 
@@ -314,7 +314,7 @@ def test_float_values():
 
 
 def test_negative_int_as_positional():
-    @tinycli.command
+    @seali.command
     def foo(x: int, /):
         return x
 
@@ -323,7 +323,7 @@ def test_negative_int_as_positional():
 
 
 def test_negative_int_as_keyword():
-    @tinycli.command
+    @seali.command
     def foo(*, value: int):
         return value
 
@@ -332,7 +332,7 @@ def test_negative_int_as_keyword():
 
 
 def test_negative_float_as_positional():
-    @tinycli.command
+    @seali.command
     def foo(x: float, /):
         return x
 
@@ -343,7 +343,7 @@ def test_negative_float_as_positional():
 
 
 def test_multiple_positional_with_negatives():
-    @tinycli.command
+    @seali.command
     def foo(x: int, y: int, /):
         return (x, y)
 
@@ -353,7 +353,7 @@ def test_multiple_positional_with_negatives():
 
 
 def test_negative_positional_with_keyword():
-    @tinycli.command
+    @seali.command
     def foo(x: int, /, *, option: int):
         return (x, option)
 
@@ -363,7 +363,7 @@ def test_negative_positional_with_keyword():
 
 
 def test_override_default_multiple_times():
-    @tinycli.command
+    @seali.command
     def foo(*, value: int = 10):
         return value
 
@@ -372,7 +372,7 @@ def test_override_default_multiple_times():
 
 
 def test_equals_in_value():
-    @tinycli.command
+    @seali.command
     def foo(*, equation: str):
         return equation
 
@@ -381,7 +381,7 @@ def test_equals_in_value():
 
 
 def test_combining_short_and_long():
-    @tinycli.command
+    @seali.command
     def foo(*, alpha: int, bravo: int):
         return (alpha, bravo)
 
@@ -390,7 +390,7 @@ def test_combining_short_and_long():
 
 
 def test_positional_with_dash():
-    @tinycli.command
+    @seali.command
     def foo(x: str, y: str, /, *, z: bool = False):
         return x, y, z
 
@@ -401,7 +401,7 @@ def test_positional_with_dash():
 
 
 def test_positional_with_dash2():
-    @tinycli.command
+    @seali.command
     def foo(x: int, y: int, /, *, z: int):
         return (x, y, z)
 
@@ -412,7 +412,7 @@ def test_positional_with_dash2():
 
 
 def test_keyword_only_single_letter_name():
-    @tinycli.command
+    @seali.command
     def foo(*, x: int, y: int, z: int):
         return (x, y, z)
 
@@ -421,7 +421,7 @@ def test_keyword_only_single_letter_name():
 
 
 def test_positional_only_single_letter_name():
-    @tinycli.command
+    @seali.command
     def foo(x: int, y: int, /):
         return (x, y)
 
@@ -429,7 +429,7 @@ def test_positional_only_single_letter_name():
 
 
 def test_empty_string_value():
-    @tinycli.command
+    @seali.command
     def foo(*, text: str):
         return text
 
@@ -438,7 +438,7 @@ def test_empty_string_value():
 
 def test_boolean_in_equals_form_is_invalid():
     # Boolean flags should not accept values, even with = syntax
-    @tinycli.command
+    @seali.command
     def foo(*, flag: bool = False):
         return flag
 
@@ -452,7 +452,7 @@ def test_boolean_in_equals_form_is_invalid():
 
 
 def test_only_flags():
-    @tinycli.command
+    @seali.command
     def foo(*, alpha: bool = False, bravo: bool = False):
         return (alpha, bravo)
 
@@ -463,7 +463,7 @@ def test_only_flags():
 
 
 def test_long_argument_name():
-    @tinycli.command
+    @seali.command
     def foo(*, very_long_argument_name_with_many_underscores: int):
         return very_long_argument_name_with_many_underscores
 
@@ -472,7 +472,7 @@ def test_long_argument_name():
 
 
 def test_scientific_notation():
-    @tinycli.command
+    @seali.command
     def foo(*, value: float):
         return value
 
@@ -482,7 +482,7 @@ def test_scientific_notation():
 
 
 def test_kebab_and_snake_case():
-    @tinycli.command
+    @seali.command
     def foo(*, my_arg: int, a_flag: bool = False):
         return my_arg, a_flag
 
@@ -493,7 +493,7 @@ def test_kebab_and_snake_case():
 
 
 def test_path_positional():
-    @tinycli.command
+    @seali.command
     def foo(path: pathlib.Path, /):
         return path
 
@@ -503,7 +503,7 @@ def test_path_positional():
 
 
 def test_path_keyword():
-    @tinycli.command
+    @seali.command
     def foo(*, path: pathlib.Path):
         return path
 
@@ -512,7 +512,7 @@ def test_path_keyword():
 
 
 def test_path_with_default():
-    @tinycli.command
+    @seali.command
     def foo(*, path: pathlib.Path = pathlib.Path("default.txt")):
         return path
 
@@ -521,7 +521,7 @@ def test_path_with_default():
 
 
 def test_multiple_paths():
-    @tinycli.command
+    @seali.command
     def foo(input_path: pathlib.Path, /, *, output_path: pathlib.Path):
         return (input_path, output_path)
 
@@ -532,7 +532,7 @@ def test_multiple_paths():
 
 
 def test_path_with_union():
-    @tinycli.command
+    @seali.command
     def foo(*, path: pathlib.Path | None = None):
         return path
 
@@ -541,7 +541,7 @@ def test_path_with_union():
 
 
 def test_positional_with_default():
-    @tinycli.command
+    @seali.command
     def foo(x: str = "hi", /):
         return x
 
@@ -552,7 +552,7 @@ def test_positional_with_default():
 
 
 def test_positional_with_default_multi():
-    @tinycli.command
+    @seali.command
     def foo(x: str = "a", y: str = "b", z: str = "c", /):
         return x, y, z
 
@@ -565,7 +565,7 @@ def test_positional_with_default_multi():
 
 
 def test_positional_with_default_and_keywords():
-    @tinycli.command
+    @seali.command
     def foo(x: str = "a", /, *, foo: int = 3, bar: str):
         return x, foo, bar
 
@@ -583,7 +583,7 @@ def test_positional_with_default_and_keywords():
 
 
 def test_variadic_str():
-    @tinycli.command
+    @seali.command
     def foo(*args: str):
         return args
 
@@ -593,7 +593,7 @@ def test_variadic_str():
 
 
 def test_variadic_int():
-    @tinycli.command
+    @seali.command
     def foo(*args: int):
         return args
 
@@ -606,7 +606,7 @@ def test_variadic_int():
 
 
 def test_variadic_with_positional():
-    @tinycli.command
+    @seali.command
     def foo(bar: str, baz: str, /, *args: str):
         return bar, baz, args
 
@@ -619,7 +619,7 @@ def test_variadic_with_positional():
 
 
 def test_variadic_with_keyword():
-    @tinycli.command
+    @seali.command
     def foo(
         bar: str,
         baz: str,
@@ -658,7 +658,7 @@ def test_variadic_with_keyword():
 
 
 def test_variadic_with_default_positional():
-    @tinycli.command
+    @seali.command
     def foo(x: str = "hi", /, *args: str):
         return x, args
 
@@ -670,7 +670,7 @@ def test_variadic_with_default_positional():
 
 
 def test_variadic_with_default_positional_and_keyword():
-    @tinycli.command
+    @seali.command
     def foo(x: str = "hi", /, *args: str, opt: int = 3):
         return x, args, opt
 
@@ -688,7 +688,7 @@ def test_variadic_with_default_positional_and_keyword():
 
 
 def test_variadic_with_unrecognized_keywords():
-    @tinycli.command
+    @seali.command
     def foo(*foo: str):
         return foo
 
@@ -696,7 +696,7 @@ def test_variadic_with_unrecognized_keywords():
     assert foo(["--bar=4"]) == ("--bar=4",)
     assert foo(["--bar", "4"]) == ("--bar", "4")
 
-    @tinycli.command
+    @seali.command
     def foo2(*foo: str, baz: int = 3):
         return foo, baz
 
@@ -714,7 +714,7 @@ def test_variadic_with_unrecognized_keywords():
 
 
 def test_flag_and_option_with_same_start_letter():
-    @tinycli.command
+    @seali.command
     def foo(*, myflag: bool = False, myopt: int = 3):
         return myflag, myopt
 
@@ -725,7 +725,7 @@ def test_flag_and_option_with_same_start_letter():
 
 
 def test_two_options_with_same_start_letter():
-    @tinycli.command
+    @seali.command
     def foo(*, myopt: int = 3, my_another_opt: str = "hi"):
         return myopt, my_another_opt
 
@@ -738,7 +738,7 @@ def test_two_options_with_same_start_letter():
 
 
 def test_version_short_flag(capfd):
-    @tinycli.command(version="1.0.0")
+    @seali.command(version="1.0.0")
     def foo():
         return "executed"
 
@@ -750,7 +750,7 @@ def test_version_short_flag(capfd):
 
 
 def test_version_long_flag(capfd):
-    @tinycli.command(version="2.5.3")
+    @seali.command(version="2.5.3")
     def foo():
         return "executed"
 
@@ -762,7 +762,7 @@ def test_version_long_flag(capfd):
 
 
 def test_version_with_positional_args(capfd):
-    @tinycli.command(version="1.2.3")
+    @seali.command(version="1.2.3")
     def foo(x: int, /):
         return x
 
@@ -778,7 +778,7 @@ def test_version_with_positional_args(capfd):
 
 
 def test_version_with_keyword_args(capfd):
-    @tinycli.command(version="3.0.0")
+    @seali.command(version="3.0.0")
     def foo(*, bar: int = 5):
         return bar
 
@@ -797,7 +797,7 @@ def test_version_with_keyword_args(capfd):
 def test_version_with_positional_arg_named_v(capfd):
     # When a positional-only parameter is named something starting with 'v',
     # the version flag should still work
-    @tinycli.command(version="1.0.0")
+    @seali.command(version="1.0.0")
     def foo(value: int, /):
         return value
 
@@ -814,7 +814,7 @@ def test_version_keyword_arg_named_version_error():
     # when version is also provided to the command
     with pytest.raises(ValueError, match="Argument 'version' is already taken"):
 
-        @tinycli.command(version="1.0.0")
+        @seali.command(version="1.0.0")
         def foo(*, version: str):
             return version
 
@@ -824,7 +824,7 @@ def test_version_keyword_arg_named_version_error():
 def test_version_keyword_arg_named_v_conflict(capfd):
     # Having a keyword argument starting with 'v' when version is provided
     # means -v will show version, not set the verbose flag
-    @tinycli.command(version="1.0.0")
+    @seali.command(version="1.0.0")
     def foo(*, verbose: bool = False):
         return verbose
 
@@ -841,7 +841,7 @@ def test_version_keyword_arg_named_v_conflict(capfd):
 
 
 def test_version_with_variadic_args(capfd):
-    @tinycli.command(version="4.5.6")
+    @seali.command(version="4.5.6")
     def foo(*args: str):
         return args
 
@@ -857,7 +857,7 @@ def test_version_with_variadic_args(capfd):
 
 
 def test_version_not_activated_by_partial_match():
-    @tinycli.command(version="1.0.0")
+    @seali.command(version="1.0.0")
     def foo(*args: str):
         return args
 
@@ -868,7 +868,7 @@ def test_version_not_activated_by_partial_match():
 
 
 def test_version_string_with_metadata(capfd):
-    @tinycli.command(version="1.0.0-beta.1+build.123")
+    @seali.command(version="1.0.0-beta.1+build.123")
     def foo():
         return "executed"
 
