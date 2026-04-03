@@ -105,9 +105,7 @@ thoughts that go on for quite a while and will need
 
 def test_subcommand(capfd):
     subhelp = seali.Help("subhelp", seali.Style(), {}, {})
-    mainhelp = seali.Help(
-        "mainhelp", seali.Style(), dict(subcommand="subcommand"), {}
-    )
+    mainhelp = seali.Help("mainhelp", seali.Style(), dict(subcommand="subcommand"), {})
 
     @seali.command(help=subhelp)
     def sub():

@@ -4,9 +4,9 @@ requires = ["hatchling"]
 
 [dependency-groups]
 dev = [
-  "pre-commit==4.3.0",
-  "ruff==0.13.1",
+  "prek>=0.3.8",
   "pyright==1.1.405",
+  "ruff==0.13.1",
   "toml-sort==0.23.1"
 ]
 docs = [

@@ -67,9 +67,7 @@ def test_decode_float():
 
 def test_decode_union_first_type_matches():
     assert decode("42", "eek", int | str) == 42
-    assert decode("42", "eek", str | int) == "42"
     assert decode("hello", "eek", int | str) == "hello"
-    assert decode("hello", "eek", str | int) == "hello"
 
     assert decode("42", "eek", None | int) == 42
 
@@ -94,7 +92,8 @@ def test_decode_union_of_unions():
     # In Python 3.11, Union[int, str | float] gets flattened to (int, float, str)
     # In Python 3.14, it becomes (int, str, float), preserving nested union order
     if sys.version_info >= (3, 14):
-        assert decode("3.14", "eek", Union[int, str | float]) == "3.14"  # noqa: UP007
+        with pytest.raises(TypeError, match=r"`str` must be the last member"):
+            decode("3.14", "eek", Union[int, str | float])  # noqa: UP007
     else:
         # In Python 3.11-3.13, float comes before str after flattening
         assert decode("3.14", "eek", Union[int, str | float]) == 3.14  # noqa: UP007
@@ -165,7 +164,8 @@ def test_decode_path():
 
 def test_decode_path_with_union():
     assert decode("/foo/bar", "eek", pathlib.Path | str) == pathlib.Path("/foo/bar")
-    assert decode("/foo/bar", "eek", str | pathlib.Path) == "/foo/bar"
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("/foo/bar", "eek", str | pathlib.Path)
     assert decode("/foo/bar", "eek", pathlib.Path | None) == pathlib.Path("/foo/bar")
     assert decode("null", "eek", None | pathlib.Path) is None
 
@@ -220,8 +220,47 @@ def test_decode_nocomplete_with_bool():
     assert decode("false", "eek", NoComplete[bool]) is False
 
 
+def test_decode_union_str_must_be_last():
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("None", "eek", str | None)
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("42", "eek", str | int)
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("42", "eek", str | int | float)
+    # str as last member is fine
+    assert decode("42", "eek", int | str) == 42
+    assert decode("hello", "eek", int | str) == "hello"
+    assert decode("hello", "eek", None | str) == "hello"
+    assert decode("none", "eek", None | str) is None
+    # str as only member is fine
+    assert decode("hello", "eek", Union[str]) == "hello"  # noqa: UP007
+    # Dir[str, ...] and NoComplete[str] wrappers are also caught
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("42", "eek", Dir[str, "."] | int)
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("42", "eek", NoComplete[str] | int)  # noqa: UP007
+
+
 def test_decode_dir_and_nocomplete_with_union():
-    assert decode("/foo/bar", "eek", Dir[str, "."] | int) == "/foo/bar"
-    assert decode("42", "eek", Dir[str, "."] | int) == "42"
-    assert decode("test", "eek", NoComplete[str] | int) == "test"
+    # Dir[str, ...] and NoComplete[str] wrap str, so they must also be last
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("/foo/bar", "eek", Dir[str, "."] | int)
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("42", "eek", Dir[str, "."] | int)
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("test", "eek", NoComplete[str] | int)
+    # Dir[str, ...] and NoComplete[str] as last member is fine
     assert decode("123", "eek", int | NoComplete[str]) == 123
+    assert decode("hello", "eek", int | NoComplete[str]) == "hello"
+    assert decode("hello", "eek", int | Dir[str, "."]) == "hello"
+    assert decode("42", "eek", int | Dir[str, "."]) == 42
+    # Dir[pathlib.Path, ...] and NoComplete[pathlib.Path] don't wrap str, so order
+    # doesn't matter
+    assert decode("/foo", "eek", Dir[pathlib.Path, "."] | int) == pathlib.Path("/foo")
+    assert decode("42", "eek", NoComplete[pathlib.Path] | int) == pathlib.Path("42")
+    assert decode("42", "eek", int | NoComplete[pathlib.Path]) == 42
+    # NoComplete[str] before None should also fail
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("none", "eek", NoComplete[str] | None)
+    with pytest.raises(TypeError, match=r"`str` must be the last member"):
+        decode("none", "eek", Dir[str, "."] | None)  # pyright: ignore[reportOperatorIssue]

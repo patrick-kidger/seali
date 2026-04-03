@@ -443,9 +443,7 @@ def test_fish_completion_nested_subcommand_with_spaces(capfd):
 
 
 def test_fish_completion_with_help(capfd):
-    @seali.command(
-        help=seali.Help("Test help", seali.Style(), dict(verbose="bar"), {})
-    )
+    @seali.command(help=seali.Help("Test help", seali.Style(), dict(verbose="bar"), {}))
     def foo(*, verbose: bool = False):
         return verbose
 
@@ -507,9 +505,7 @@ def test_fish_completion_without_help_or_version(capfd):
 
 def test_fish_completion_help_with_subcommand(capfd):
     @seali.command(
-        help=seali.Help(
-            "Test help", seali.Style(), dict(force="whether to force"), {}
-        )
+        help=seali.Help("Test help", seali.Style(), dict(force="whether to force"), {})
     )
     @_with_name("myapp deploy")
     def foo(*, force: bool = False):
@@ -574,9 +570,7 @@ def test_fish_completion_help_no_conflict_with_host(capfd):
     """Test that help flag takes -s h and host doesn't get it"""
 
     @seali.command(
-        help=seali.Help(
-            "Test", seali.Style(), dict(host="the host"), dict(host="host")
-        )
+        help=seali.Help("Test", seali.Style(), dict(host="the host"), dict(host="host"))
     )
     def foo(*, host: str = "localhost"):
         return host

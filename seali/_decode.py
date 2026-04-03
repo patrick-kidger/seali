@@ -79,6 +79,15 @@ def decode(argument: str, name: str, annotation: Any):
         return pathlib.Path(argument)
     elif origin in {types.UnionType, Union}:
         args = get_args(annotation)
+        for i, arg in enumerate(args):
+            while isinstance(arg, type) and issubclass(arg, (Dir, NoComplete)):  # pyright: ignore[reportArgumentType]
+                arg = arg.wrappedcls  # pyright: ignore[reportAttributeAccessIssue]
+            if arg is str and i < len(args) - 1:
+                raise TypeError(
+                    f"Argument '{name}': `str` must be the last member of a union, "
+                    f"as any input can be decoded into `str`, so later members would "
+                    f"be unreachable."
+                )
         if len(args) == 0:
             raise TypeError(f"Argument '{name}': empty unions are not supported.")
         elif len(args) == 1:
