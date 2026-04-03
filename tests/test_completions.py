@@ -62,8 +62,14 @@ def test_fish_completion_flags(capfd):
     with pytest.raises(SystemExit):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
-    assert "complete -c foo -s v -l verbose -f" in completion
-    assert "complete -c foo -s d -l debug -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v verbose' -s v -l verbose -f"
+        in completion
+    )
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s d debug' -s d -l debug -f"
+        in completion
+    )
 
 
 def test_fish_completion_option_simple(capfd):
@@ -74,7 +80,10 @@ def test_fish_completion_option_simple(capfd):
     with pytest.raises(SystemExit):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
-    assert "complete -c foo -s v -l value -f -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v value' -s v -l value -f -r"
+        in completion
+    )
 
 
 def test_fish_completion_option_literal(capfd):
@@ -85,7 +94,11 @@ def test_fish_completion_option_literal(capfd):
     with pytest.raises(SystemExit):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
-    assert "complete -c foo -s c -l choice -f -r -a 'alpha beta gamma'" in completion
+    assert (
+        "complete -c foo"
+        " -n 'not __fish_contains_opt -s c choice'"
+        " -s c -l choice -f -r -a 'alpha beta gamma'" in completion
+    )
 
 
 def test_fish_completion_option_dir(capfd):
@@ -96,7 +109,11 @@ def test_fish_completion_option_dir(capfd):
     with pytest.raises(SystemExit):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
-    assert "complete -c foo -s f -l file -f -r -a '(ls /tmp 2>/dev/null)'" in completion
+    assert (
+        "complete -c foo"
+        " -n 'not __fish_contains_opt -s f file'"
+        " -s f -l file -f -r -a '(ls /tmp 2>/dev/null)'" in completion
+    )
 
 
 def test_fish_completion_option_nocomplete(capfd):
@@ -108,9 +125,12 @@ def test_fish_completion_option_nocomplete(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Should still have the option, but no specific completions
-    assert "complete -c foo -s v -l value -f -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v value' -s v -l value -f -r"
+        in completion
+    )
     # Should not have -a flag with completions
-    assert "complete -c foo -s v -l value -r -a" not in completion
+    assert "-l value -r -a" not in completion
 
 
 def test_fish_completion_union_literal(capfd):
@@ -159,7 +179,10 @@ def test_fish_completion_mixed(capfd):
     # Option with Literal
     assert "fast slow" in completion
     # Flag
-    assert "complete -c foo -s v -l verbose -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v verbose' -s v -l verbose -f"
+        in completion
+    )
 
 
 def test_fish_completion_kebab_case(capfd):
@@ -262,10 +285,16 @@ def test_fish_completion_only_simple_types(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Simple types without special completion annotations
-    assert "complete -c foo -s n -l name -f -r" in completion
-    assert "complete -c foo -s c -l count -f -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s n name' -s n -l name -f -r"
+        in completion
+    )
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s c count' -s c -l count -f -r"
+        in completion
+    )
     # No specific completions for the types
-    assert " -a " not in completion or "complete -c foo -s" in completion
+    assert " -a " not in completion
 
 
 def test_fish_completion_dir_empty_string_option(capfd):
@@ -278,11 +307,14 @@ def test_fish_completion_dir_empty_string_option(capfd):
     completion = capfd.readouterr().out
     # Empty string directory should offer default file completion
     # This means -r without -a, allowing fish's built-in file completion
-    assert "complete -c foo -s f -l file -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s f file' -s f -l file -r"
+        in completion
+    )
     # Should not have ls command
     assert "(ls" not in completion
     # Should not have -a flag with a specific completion
-    assert "complete -c foo -s f -l file -r -a" not in completion
+    assert "-l file -r -a" not in completion
 
 
 def test_fish_completion_dir_empty_string_positional(capfd):
@@ -309,11 +341,14 @@ def test_fish_completion_dir_str_option(capfd):
     completion = capfd.readouterr().out
     # Dir[str] without directory should offer default file completion
     # This means -r without -a, allowing fish's built-in file completion
-    assert "complete -c foo -s f -l file -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s f file' -s f -l file -r"
+        in completion
+    )
     # Should not have ls command
     assert "(ls" not in completion
     # Should not have -a flag with a specific completion
-    assert "complete -c foo -s f -l file -r -a" not in completion
+    assert "-l file -r -a" not in completion
 
 
 def test_fish_completion_dir_str_positional(capfd):
@@ -340,11 +375,14 @@ def test_fish_completion_dir_path_option(capfd):
     completion = capfd.readouterr().out
     # Dir[pathlib.Path] without directory should offer default file completion
     # This means -r without -a, allowing fish's built-in file completion
-    assert "complete -c foo -s f -l file -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s f file' -s f -l file -r"
+        in completion
+    )
     # Should not have ls command
     assert "(ls" not in completion
     # Should not have -a flag with a specific completion
-    assert "complete -c foo -s f -l file -r -a" not in completion
+    assert "-l file -r -a" not in completion
 
 
 def test_fish_completion_dir_path_positional(capfd):
@@ -371,13 +409,22 @@ def test_fish_completion_multiple_args_same_first_letter(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Only the first argument (verbose) should have -s v
-    assert "complete -c foo -s v -l verbose -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v verbose' -s v -l verbose -f"
+        in completion
+    )
     # The other arguments should not have -s v
-    assert "complete -c foo -s v -l value" not in completion
-    assert "complete -c foo -s v -l vector" not in completion
+    assert "-s v -l value" not in completion
+    assert "-s v -l vector" not in completion
     # But they should still have their long forms
-    assert "complete -c foo -l value -f -r" in completion
-    assert "complete -c foo -l vector -f -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt value' -l value -f -r"
+        in completion
+    )
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt vector' -l vector -f -r"
+        in completion
+    )
 
 
 def _with_name(name):
@@ -406,13 +453,17 @@ def test_fish_completion_subcommand_with_spaces(capfd):
     assert "__fish_seen_subcommand_from bar" in completion
     # Verify the format is correct
     assert (
-        "complete -c foo -n '__fish_seen_subcommand_from bar' -s v -l verbose -f"
-        in completion
+        "complete -c foo"
+        " -n '__fish_seen_subcommand_from bar;"
+        " and not __fish_contains_opt -s v verbose'"
+        " -s v -l verbose -f" in completion
     )
     # value doesn't get -s v because verbose already has it
     assert (
-        "complete -c foo -n '__fish_seen_subcommand_from bar' -l value -f -r"
-        in completion
+        "complete -c foo"
+        " -n '__fish_seen_subcommand_from bar;"
+        " and not __fish_contains_opt value'"
+        " -l value -f -r" in completion
     )
 
 
@@ -432,8 +483,10 @@ def test_fish_completion_nested_subcommand_with_spaces(capfd):
     assert "__fish_seen_subcommand_from remote add" in completion
     # Flag should have the condition
     assert (
-        "complete -c git -n '__fish_seen_subcommand_from remote add' -s d -l debug -f"
-        in completion
+        "complete -c git"
+        " -n '__fish_seen_subcommand_from remote add;"
+        " and not __fish_contains_opt -s d debug'"
+        " -s d -l debug -f" in completion
     )
     # Positional should have combined conditions
     assert (
@@ -451,9 +504,15 @@ def test_fish_completion_with_help(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Should have help flag
-    assert "complete -c foo -s h -l help -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s h help' -s h -l help -f"
+        in completion
+    )
     # Should also have the regular flag
-    assert "complete -c foo -s v -l verbose -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v verbose' -s v -l verbose -f"
+        in completion
+    )
 
 
 def test_fish_completion_with_version(capfd):
@@ -465,9 +524,15 @@ def test_fish_completion_with_version(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Should have version flag
-    assert "complete -c foo -s v -l version -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
+        in completion
+    )
     # Should also have the regular flag
-    assert "complete -c foo -s d -l debug -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s d debug' -s d -l debug -f"
+        in completion
+    )
 
 
 def test_fish_completion_with_help_and_version(capfd):
@@ -482,10 +547,19 @@ def test_fish_completion_with_help_and_version(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Should have both help and version flags
-    assert "complete -c foo -s h -l help -f" in completion
-    assert "complete -c foo -s v -l version -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s h help' -s h -l help -f"
+        in completion
+    )
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
+        in completion
+    )
     # Should also have the regular flag
-    assert "complete -c foo -s q -l quiet -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s q quiet' -s q -l quiet -f"
+        in completion
+    )
 
 
 def test_fish_completion_without_help_or_version(capfd):
@@ -500,7 +574,10 @@ def test_fish_completion_without_help_or_version(capfd):
     assert "-l help" not in completion
     assert "-l version" not in completion
     # Should have the regular flag
-    assert "complete -c foo -s v -l verbose -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v verbose' -s v -l verbose -f"
+        in completion
+    )
 
 
 def test_fish_completion_help_with_subcommand(capfd):
@@ -516,12 +593,17 @@ def test_fish_completion_help_with_subcommand(capfd):
     completion = capfd.readouterr().out
     # Help flag should have subcommand condition
     assert (
-        "complete -c myapp -n '__fish_seen_subcommand_from deploy' -s h -l help -f"
+        "complete -c myapp"
+        " -n '__fish_seen_subcommand_from deploy;"
+        " and not __fish_contains_opt -s h help'"
+        " -s h -l help -f"
     ) in completion
     # Regular flag should also have subcommand condition
     assert (
-        "complete -c myapp -n '__fish_seen_subcommand_from deploy' -s f -l force -f"
-        in completion
+        "complete -c myapp"
+        " -n '__fish_seen_subcommand_from deploy;"
+        " and not __fish_contains_opt -s f force'"
+        " -s f -l force -f" in completion
     )
 
 
@@ -536,12 +618,17 @@ def test_fish_completion_version_with_subcommand(capfd):
     completion = capfd.readouterr().out
     # Version flag should have subcommand condition
     assert (
-        "complete -c cli -n '__fish_seen_subcommand_from tool' -s v -l version -f"
+        "complete -c cli"
+        " -n '__fish_seen_subcommand_from tool;"
+        " and not __fish_contains_opt -s v version'"
+        " -s v -l version -f"
     ) in completion
     # Regular flag should also have subcommand condition
     assert (
-        "complete -c cli -n '__fish_seen_subcommand_from tool' -s d -l debug -f"
-        in completion
+        "complete -c cli"
+        " -n '__fish_seen_subcommand_from tool;"
+        " and not __fish_contains_opt -s d debug'"
+        " -s d -l debug -f" in completion
     )
 
 
@@ -556,9 +643,15 @@ def test_fish_completion_version_no_conflict_with_verbose(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Version should get -s v
-    assert "complete -c foo -s v -l version -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
+        in completion
+    )
     # Verbose should NOT get -s v (should only have long form)
-    assert "complete -c foo -l verbose -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt verbose' -l verbose -f"
+        in completion
+    )
     # Verbose should NOT have -s v in its completion line
     lines = completion.split("\n")
     verbose_lines = [l for l in lines if "-l verbose" in l]
@@ -579,9 +672,14 @@ def test_fish_completion_help_no_conflict_with_host(capfd):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
     # Help should get -s h
-    assert "complete -c foo -s h -l help -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s h help' -s h -l help -f"
+        in completion
+    )
     # Host should NOT get -s h (should only have long form)
-    assert "complete -c foo -l host -f -r" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt host' -l host -f -r" in completion
+    )
     # Host should NOT have -s h in its completion line
     lines = completion.split("\n")
     host_lines = [l for l in lines if "-l host" in l]
@@ -609,9 +707,15 @@ def test_fish_completion_both_help_version_no_conflicts(capfd):
     completion = capfd.readouterr().out
 
     # Help should get -s h
-    assert "complete -c foo -s h -l help -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s h help' -s h -l help -f"
+        in completion
+    )
     # Version should get -s v
-    assert "complete -c foo -s v -l version -f" in completion
+    assert (
+        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
+        in completion
+    )
 
     # Parse lines to check verbose and host
     lines = completion.split("\n")

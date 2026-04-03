@@ -60,16 +60,24 @@ def _fish_completions(
     # Help flag
     if help is not None:
         line = ["complete", "-c", base_cmd]
+        contains_opt = "not __fish_contains_opt -s h help"
         if subcommand_condition is not None:
-            line.extend(["-n", f"'{subcommand_condition}'"])
+            condition = f"{subcommand_condition}; and {contains_opt}"
+        else:
+            condition = contains_opt
+        line.extend(["-n", f"'{condition}'"])
         line.extend(["-s", "h", "-l", "help", "-f"])
         lines.append(" ".join(line))
 
     # Version flag
     if has_version:
         line = ["complete", "-c", base_cmd]
+        contains_opt = "not __fish_contains_opt -s v version"
         if subcommand_condition is not None:
-            line.extend(["-n", f"'{subcommand_condition}'"])
+            condition = f"{subcommand_condition}; and {contains_opt}"
+        else:
+            condition = contains_opt
+        line.extend(["-n", f"'{condition}'"])
         line.extend(["-s", "v", "-l", "version", "-f"])
         lines.append(" ".join(line))
 
@@ -93,9 +101,17 @@ def _fish_completions(
     for flag in arguments.flags:
         long_name = flag.name.replace("_", "-")
         line = ["complete", "-c", base_cmd]
+        has_short = arguments.short_to_long.get(flag.name[0], None) == flag.name
+        if has_short:
+            contains_opt = f"not __fish_contains_opt -s {flag.name[0]} {long_name}"
+        else:
+            contains_opt = f"not __fish_contains_opt {long_name}"
         if subcommand_condition is not None:
-            line.extend(["-n", f"'{subcommand_condition}'"])
-        if arguments.short_to_long.get(flag.name[0], None) == flag.name:
+            condition = f"{subcommand_condition}; and {contains_opt}"
+        else:
+            condition = contains_opt
+        line.extend(["-n", f"'{condition}'"])
+        if has_short:
             line.extend(["-s", flag.name[0]])
         line.extend(["-l", long_name, "-f"])
         # if help is not None:
@@ -106,9 +122,17 @@ def _fish_completions(
     for opt_name, param in arguments.options.items():
         long_name = opt_name.replace("_", "-")
         line = ["complete", "-c", base_cmd]
+        has_short = arguments.short_to_long.get(opt_name[0], None) == opt_name
+        if has_short:
+            contains_opt = f"not __fish_contains_opt -s {opt_name[0]} {long_name}"
+        else:
+            contains_opt = f"not __fish_contains_opt {long_name}"
         if subcommand_condition is not None:
-            line.extend(["-n", f"'{subcommand_condition}'"])
-        if arguments.short_to_long.get(opt_name[0], None) == opt_name:
+            condition = f"{subcommand_condition}; and {contains_opt}"
+        else:
+            condition = contains_opt
+        line.extend(["-n", f"'{condition}'"])
+        if has_short:
             line.extend(["-s", opt_name[0]])
         line.extend(["-l", long_name])
         completions, allow_files = _fish_completions_arg(param.annotation)
