@@ -1,5 +1,6 @@
 import dataclasses
 import inspect
+import itertools as it
 import os
 import re
 import shutil
@@ -243,8 +244,12 @@ class Help:
 
     def validate(self, arguments: Arguments) -> None:
         fn_option_names = set(arguments.options.keys())
+        variadic_names = (
+            {arguments.variadic.name} if arguments.variadic is not None else set()
+        )
         fn_argument_names = (
             {p.name for p in arguments.positional}
+            | variadic_names
             | fn_option_names
             | {f.name for f in arguments.flags}
         )
@@ -286,15 +291,22 @@ class Help:
             " " * self.style.indent,
             self.style.cmd(name),
         ]
-        if len(arguments.positional) > 0:
+        if len(arguments.positional) > 0 or arguments.variadic is not None:
             usage.append(" ")
-            usage.append(self.style.positional("[POSITIONAL]"))
+            if arguments.variadic is None:
+                usage.append(self.style.positional("[POSITIONAL]"))
+            else:
+                usage.append(self.style.positional("[POSITIONAL...]"))
         if len(arguments.flags) > 0 or len(arguments.options):
             usage.append(" ")
             usage.append(self.style.option_or_flag("[OPTIONS AND FLAGS]"))
 
         positional = [self.style.heading("Positional")]
-        for param in arguments.positional:
+        for param in (
+            arguments.positional
+            if arguments.variadic is None
+            else it.chain(arguments.positional, [arguments.variadic])
+        ):
             name = self.style.positional(param.name)
             doc = inspect.cleandoc(self.arguments[param.name])
             name_doc = _insert_tabstop_at_index(f"{name}: {doc}", self.style.indent)

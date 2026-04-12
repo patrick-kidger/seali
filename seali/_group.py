@@ -1,3 +1,4 @@
+import dataclasses
 import sys
 from collections.abc import Sequence
 from typing import Literal, overload
@@ -131,6 +132,11 @@ def group(
         for subcommand in subcommand_lookup.values():
             out.extend(subcommand.completions(shell, name))
         return out
+
+    if help is not None:
+        help = dataclasses.replace(
+            help, arguments={**help.arguments, "remainder": "Remaining arguments."}
+        )
 
     @command(help=help, version=version, extra_completions=extra_completions)
     @_with_name(name)

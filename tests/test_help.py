@@ -103,6 +103,111 @@ thoughts that go on for quite a while and will need
     assert captured == expected
 
 
+def test_doc_variadic(capfd):
+    style = seali.Style(
+        cmd="wahoo",
+        heading=lambda x: f"# {x}:",
+        positional=">",
+        option_or_flag="!",
+        indent=2,
+        width=60,
+    )
+    help = seali.Help(
+        """
+        $USAGE
+
+        $POSITIONAL
+
+        $OPTIONS_AND_FLAGS
+        """,
+        style=style,
+        arguments=dict(
+            pos="Some position.",
+            args="Extra arguments.",
+            opt="Some option.",
+        ),
+        option_prompts=dict(opt="foo"),
+    )
+
+    @seali.command(help=help)
+    def foo(pos: int, /, *args: str, opt: str):
+        del pos, args, opt
+
+    with pytest.raises(SystemExit):
+        foo(["--help"])
+    captured = capfd.readouterr().out
+    captured = _ansi_regex.sub("", captured)
+    expected = """# Usage:
+
+  wahoofoo >[POSITIONAL...] ![OPTIONS AND FLAGS]
+
+# Positional:
+
+  >pos: Some position.
+
+  >args: Extra arguments.
+
+# Options and flags:
+
+  !-o, !--opt !<foo>: Some option.
+"""
+    assert captured == expected
+
+
+def test_doc_variadic_only(capfd):
+    style = seali.Style(
+        heading=lambda x: f"# {x}:",
+        positional=">",
+        indent=2,
+        width=50,
+    )
+    help = seali.Help(
+        """
+        $USAGE
+
+        $POSITIONAL
+        """,
+        style=style,
+        arguments=dict(args="All the arguments."),
+        option_prompts={},
+    )
+
+    @seali.command(help=help)
+    def foo(*args: str):
+        del args
+
+    with pytest.raises(SystemExit):
+        foo(["--help"])
+    captured = capfd.readouterr().out
+    captured = _ansi_regex.sub("", captured)
+    expected = """# Usage:
+
+  foo >[POSITIONAL...]
+
+# Positional:
+
+  >args: All the arguments.
+"""
+    assert captured == expected
+
+
+def test_doc_variadic_missing():
+    style = seali.Style()
+    help = seali.Help(
+        "$USAGE\n\n$POSITIONAL",
+        style=style,
+        arguments=dict(pos="Some position."),
+        option_prompts={},
+    )
+
+    @seali.command(help=help)
+    def foo(pos: int, /, *args: str):
+        del pos, args
+
+    with pytest.raises(ValueError, match="not documented"):
+        foo(["--help"])
+
+
 def test_subcommand(capfd):
     subhelp = seali.Help("subhelp", seali.Style(), {}, {})
     mainhelp = seali.Help("mainhelp", seali.Style(), dict(subcommand="subcommand"), {})
