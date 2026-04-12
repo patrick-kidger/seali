@@ -1,4 +1,3 @@
-import dataclasses
 import sys
 from collections.abc import Sequence
 from typing import Literal, overload
@@ -19,6 +18,8 @@ def _with_name(name: str):
 def group(
     *,
     default: Command,
+    help: None | Help = None,
+    version: None | str = None,
     subcommands: Sequence[Command],
 ): ...
 
@@ -45,11 +46,11 @@ def group(
 
     **Arguments:**
 
-    - `default`: a command to run if no subcommand is provided. Mutually exclusive with
-        `name`, `help` and `version`.
+    - `default`: a command to run if no subcommand is provided. Either this or `name`
+        must be provided.
     - `name`: name. Either this or `default` must be provided.
-    - `help`: help message, as [`seali.command`][]. Mutually exclusive with `default`.
-    - `version`: version, as [`seali.command`][]. Mutually exclusive with `default`.
+    - `help`: help message, as [`seali.command`][].
+    - `version`: version, as [`seali.command`][].
     - `subcommands`: a list/tuple of subcommands.
 
     **Returns:**
@@ -101,21 +102,6 @@ def group(
                 "`seali.group(default=seali.command(<function with name 'name'>))`."
             )
         name = default.fn.__name__
-        if help is not None:
-            raise ValueError(
-                "Got `seali.group(help=..., default=...)`. To provide documentation "
-                "*and* a default command, then attach the documentation to the default "
-                "command directly: `seali.group(default=seali.command(help=...))`."
-            )
-        help = default.help
-        if version is not None:
-            raise ValueError(
-                "Got `seali.group(version=..., default=...)`. To provide a version "
-                "*and* a default command, then attach the version to the default "
-                "command directly: "
-                "`seali.group(default=seali.command(version=...))`."
-            )
-        version = default.version
     for value in subcommands:
         if not isinstance(value, Command):
             raise TypeError(
@@ -132,11 +118,6 @@ def group(
         for subcommand in subcommand_lookup.values():
             out.extend(subcommand.completions(shell, name))
         return out
-
-    if help is not None:
-        help = dataclasses.replace(
-            help, arguments={**help.arguments, "remainder": "Remaining arguments."}
-        )
 
     @command(help=help, version=version, extra_completions=extra_completions)
     @_with_name(name)

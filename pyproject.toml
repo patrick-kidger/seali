@@ -48,7 +48,7 @@ name = "seali"
 readme = "README.md"
 requires-python = ">=3.11"
 urls = {repository = "https://github.com/patrick-kidger/seali"}
-version = "0.2.0"
+version = "0.3.0"
 
 [tool.hatch.build]
 include = ["seali/*"]

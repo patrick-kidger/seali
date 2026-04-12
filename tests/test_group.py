@@ -220,7 +220,7 @@ def test_group_with_version(capfd):
 
 
 def test_group_version_from_default_command(capfd):
-    @seali.command(version="2.0.0")
+    @seali.command
     def default():
         return "default"
 
@@ -228,9 +228,8 @@ def test_group_version_from_default_command(capfd):
     def foo():
         return "foo"
 
-    cmd = seali.group(default=default, subcommands=[foo])
+    cmd = seali.group(default=default, version="2.0.0", subcommands=[foo])
 
-    # Version should be inherited from default command
     with pytest.raises(SystemExit) as exc_info:
         cmd(["-v"])
     assert exc_info.value.code == 0
@@ -246,19 +245,3 @@ def test_group_version_from_default_command(capfd):
     # Default command and subcommands should work
     assert cmd([]) == "default"
     assert cmd(["foo"]) == "foo"
-
-
-def test_group_version_and_default_conflict():
-    @seali.command(version="1.0.0")
-    def default():
-        return "default"
-
-    @seali.command
-    def foo():
-        return "foo"
-
-    # Should raise error when both version and default with version are provided
-    with pytest.raises(
-        ValueError, match="Got `seali.group\\(version=..., default=...\\)`"
-    ):
-        seali.group(version="2.0.0", default=default, subcommands=[foo])  # pyright: ignore[reportCallIssue]

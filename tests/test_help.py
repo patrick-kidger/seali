@@ -208,9 +208,85 @@ def test_doc_variadic_missing():
         foo(["--help"])
 
 
+def test_group_help_valid(capfd):
+    help = seali.Help(
+        "$USAGE\n\n$POSITIONAL",
+        seali.Style(),
+        dict(subcommand="subcommand", remainder="remaining arguments"),
+        {},
+    )
+
+    @seali.command
+    def sub():
+        pass
+
+    main = seali.group(name="main", help=help, subcommands=[sub])
+    with pytest.raises(SystemExit):
+        main(["--help"])
+    captured = capfd.readouterr().out
+    assert "subcommand" in captured
+    assert "remaining arguments" in captured
+
+
+def test_group_help_missing_subcommand():
+    help = seali.Help(
+        "$USAGE\n\n$POSITIONAL",
+        seali.Style(),
+        dict(remainder="remaining arguments"),
+        {},
+    )
+
+    @seali.command
+    def sub():
+        pass
+
+    main = seali.group(name="main", help=help, subcommands=[sub])
+    with pytest.raises(ValueError, match="not documented"):
+        main(["--help"])
+
+
+def test_group_help_missing_remainder():
+    help = seali.Help(
+        "$USAGE\n\n$POSITIONAL",
+        seali.Style(),
+        dict(subcommand="subcommand"),
+        {},
+    )
+
+    @seali.command
+    def sub():
+        pass
+
+    main = seali.group(name="main", help=help, subcommands=[sub])
+    with pytest.raises(ValueError, match="not documented"):
+        main(["--help"])
+
+
+def test_group_help_missing_both():
+    help = seali.Help(
+        "$USAGE\n\n$POSITIONAL",
+        seali.Style(),
+        {},
+        {},
+    )
+
+    @seali.command
+    def sub():
+        pass
+
+    main = seali.group(name="main", help=help, subcommands=[sub])
+    with pytest.raises(ValueError, match="not documented"):
+        main(["--help"])
+
+
 def test_subcommand(capfd):
     subhelp = seali.Help("subhelp", seali.Style(), {}, {})
-    mainhelp = seali.Help("mainhelp", seali.Style(), dict(subcommand="subcommand"), {})
+    mainhelp = seali.Help(
+        "mainhelp",
+        seali.Style(),
+        dict(subcommand="subcommand", remainder="remaining arguments"),
+        {},
+    )
 
     @seali.command(help=subhelp)
     def sub():
