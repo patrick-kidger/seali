@@ -4,7 +4,7 @@ requires = ["hatchling"]
 
 [dependency-groups]
 dev = [
-  "prek>=0.3.8",
+  "prek==0.3.8",
   "pyright==1.1.405",
   "ruff==0.13.1",
   "toml-sort==0.23.1"
