@@ -20,7 +20,7 @@ class Command:
     # Not computed eagerly to minimise overhead when launching the script.
     @ft.cached_property
     def arguments(self):
-        return Arguments.from_callable(self.fn, True, self.version is not None)
+        return Arguments.from_callable(self.fn, self.version is not None)
 
     @ft.cached_property
     def resolved_help(self) -> Help:

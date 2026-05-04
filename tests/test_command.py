@@ -737,6 +737,16 @@ def test_two_options_with_same_start_letter():
     assert foo(["-m", "5"]) == (5, "hi")
 
 
+def test_completions_argument_name():
+    @seali.command
+    def foo(*, completions: str):
+        pass
+
+    with pytest.raises(ValueError) as exc_info:
+        foo()
+    assert "Argument name 'completions' is reserved" in str(exc_info)
+
+
 def test_version_short_flag(capfd):
     @seali.command(version="1.0.0")
     def foo():
@@ -812,7 +822,7 @@ def test_version_with_positional_arg_named_v(capfd):
 def test_version_keyword_arg_named_version_error():
     # Having a keyword argument named "version" should raise an error
     # when version is also provided to the command
-    with pytest.raises(ValueError, match="Argument 'version' is already taken"):
+    with pytest.raises(ValueError, match="Argument name 'version' is reserved"):
 
         @seali.command(version="1.0.0")
         def foo(*, version: str):

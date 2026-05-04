@@ -74,9 +74,7 @@ class Arguments:
     short_to_long: dict[str, str]
 
     @classmethod
-    def from_callable(
-        cls, fn: Callable, has_help: bool, has_version: bool
-    ) -> "Arguments":
+    def from_callable(cls, fn: Callable, has_version: bool) -> "Arguments":
         positional: list[Positional] = []
         variadic = None
         options: dict[str, Option] = {}
@@ -103,19 +101,23 @@ class Arguments:
                         Positional(param.name, param.annotation, param.default)
                     )
                 case inspect.Parameter.KEYWORD_ONLY:
+                    if param.name == "help":
+                        raise ValueError(
+                            "Argument name 'help' is reserved for use with `--help`."
+                        )
+                    if param.name == "completions":
+                        raise ValueError(
+                            "Argument name 'completions' is reserved for use with `--completions <SHELL>`."
+                        )
                     if has_version and param.name == "version":
                         raise ValueError(
-                            "Argument 'version' is already taken the provided version."
-                        )
-                    if has_help and param.name == "help":
-                        raise ValueError(
-                            "Argument 'help' is already taken the provided help."
+                            "Argument name 'version' is reserved for use as `--version` to give the specified version."
                         )
                     short = param.name[0]
                     if (
                         short not in short_to_long.keys()
                         and not (has_version and short == "v")
-                        and not (has_help and short == "h")
+                        and not (short == "h")
                     ):
                         short_to_long[short] = param.name
                     if param.annotation is bool:
