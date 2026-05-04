@@ -515,72 +515,6 @@ def test_fish_completion_with_help(capfd):
     )
 
 
-def test_fish_completion_with_version(capfd):
-    @seali.command(version="1.0.0")
-    def foo(*, debug: bool = False):
-        return debug
-
-    with pytest.raises(SystemExit):
-        foo(["--completions", "fish"])
-    completion = capfd.readouterr().out
-    # Should have version flag
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
-        in completion
-    )
-    # Should also have the regular flag
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s d debug' -s d -l debug -f"
-        in completion
-    )
-
-
-def test_fish_completion_with_help_and_version(capfd):
-    @seali.command(
-        help=seali.Help("Test help", seali.Style(), dict(quiet="qasdf"), {}),
-        version="2.0.0",
-    )
-    def foo(*, quiet: bool = False):
-        return quiet
-
-    with pytest.raises(SystemExit):
-        foo(["--completions", "fish"])
-    completion = capfd.readouterr().out
-    # Should have both help and version flags
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s h help' -s h -l help -f"
-        in completion
-    )
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
-        in completion
-    )
-    # Should also have the regular flag
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s q quiet' -s q -l quiet -f"
-        in completion
-    )
-
-
-def test_fish_completion_without_help_or_version(capfd):
-    @seali.command
-    def foo(*, verbose: bool = False):
-        return verbose
-
-    with pytest.raises(SystemExit):
-        foo(["--completions", "fish"])
-    completion = capfd.readouterr().out
-    # Should have help flag (always present)
-    assert "-l help" in completion
-    # Should NOT have version flag
-    assert "-l version" not in completion
-    # Should have the regular flag
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s v verbose' -s v -l verbose -f"
-        in completion
-    )
-
-
 def test_fish_completion_help_with_subcommand(capfd):
     @seali.command(
         help=seali.Help("Test help", seali.Style(), dict(force="whether to force"), {})
@@ -608,58 +542,6 @@ def test_fish_completion_help_with_subcommand(capfd):
     )
 
 
-def test_fish_completion_version_with_subcommand(capfd):
-    @seali.command(version="3.0.0")
-    @_with_name("cli tool")
-    def foo(*, debug: bool = False):
-        return debug
-
-    with pytest.raises(SystemExit):
-        foo(["--completions", "fish"])
-    completion = capfd.readouterr().out
-    # Version flag should have subcommand condition
-    assert (
-        "complete -c cli"
-        " -n '__fish_seen_subcommand_from tool;"
-        " and not __fish_contains_opt -s v version'"
-        " -s v -l version -f"
-    ) in completion
-    # Regular flag should also have subcommand condition
-    assert (
-        "complete -c cli"
-        " -n '__fish_seen_subcommand_from tool;"
-        " and not __fish_contains_opt -s d debug'"
-        " -s d -l debug -f" in completion
-    )
-
-
-def test_fish_completion_version_no_conflict_with_verbose(capfd):
-    """Test that version flag takes -s v and verbose doesn't get it"""
-
-    @seali.command(version="1.0.0")
-    def foo(*, verbose: bool = False):
-        return verbose
-
-    with pytest.raises(SystemExit):
-        foo(["--completions", "fish"])
-    completion = capfd.readouterr().out
-    # Version should get -s v
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
-        in completion
-    )
-    # Verbose should NOT get -s v (should only have long form)
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt verbose' -l verbose -f"
-        in completion
-    )
-    # Verbose should NOT have -s v in its completion line
-    lines = completion.split("\n")
-    verbose_lines = [l for l in lines if "-l verbose" in l]
-    assert len(verbose_lines) == 1
-    assert "-s v" not in verbose_lines[0]
-
-
 def test_fish_completion_help_no_conflict_with_host(capfd):
     """Test that help flag takes -s h and host doesn't get it"""
 
@@ -684,49 +566,5 @@ def test_fish_completion_help_no_conflict_with_host(capfd):
     # Host should NOT have -s h in its completion line
     lines = completion.split("\n")
     host_lines = [l for l in lines if "-l host" in l]
-    assert len(host_lines) == 1
-    assert "-s h" not in host_lines[0]
-
-
-def test_fish_completion_both_help_version_no_conflicts(capfd):
-    """Test that both help and version take their short flags without conflicts"""
-
-    @seali.command(
-        help=seali.Help(
-            "Test",
-            seali.Style(),
-            dict(verbose="verbosity", host="the host"),
-            dict(host="host"),
-        ),
-        version="1.0.0",
-    )
-    def foo(*, verbose: bool = False, host: str = "localhost"):
-        return (verbose, host)
-
-    with pytest.raises(SystemExit):
-        foo(["--completions", "fish"])
-    completion = capfd.readouterr().out
-
-    # Help should get -s h
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s h help' -s h -l help -f"
-        in completion
-    )
-    # Version should get -s v
-    assert (
-        "complete -c foo -n 'not __fish_contains_opt -s v version' -s v -l version -f"
-        in completion
-    )
-
-    # Parse lines to check verbose and host
-    lines = completion.split("\n")
-    verbose_lines = [l for l in lines if "-l verbose" in l]
-    host_lines = [l for l in lines if "-l host" in l]
-
-    # Verbose should NOT get -s v
-    assert len(verbose_lines) == 1
-    assert "-s v" not in verbose_lines[0]
-
-    # Host should NOT get -s h
     assert len(host_lines) == 1
     assert "-s h" not in host_lines[0]

@@ -14,13 +14,12 @@ from ._help import Help, Style
 class Command:
     fn: Callable
     help: None | Help
-    version: None | str
     extra_completions: None | Callable[[str], list[str]]
 
     # Not computed eagerly to minimise overhead when launching the script.
     @ft.cached_property
     def arguments(self):
-        return Arguments.from_callable(self.fn, self.version is not None)
+        return Arguments.from_callable(self.fn)
 
     @ft.cached_property
     def resolved_help(self) -> Help:
@@ -57,7 +56,6 @@ class Command:
             else parent_command + " " + self.fn.__name__,
             self.arguments,
             self.resolved_help,
-            has_version=self.version is not None,
         )
         if self.extra_completions is not None:
             out.extend(self.extra_completions(shell))
@@ -74,10 +72,6 @@ class Command:
                 # In the event of a usage error, we perform an eager check below.
                 self.resolved_help.pager(self.fn.__name__, self.arguments)
                 sys.exit(2)
-            if self.version is not None:
-                if argv == ["-v"] or argv == ["--version"]:
-                    print(self.version)
-                    sys.exit(0)
             if len(argv) == 2 and argv[0] == "--completions":
                 shell = argv[1]
                 completions = self.completions(shell, None)
@@ -106,7 +100,6 @@ def command(
     fn: None = None,
     *,
     help: None | Help = None,
-    version: None | str = None,
     extra_completions: None | Callable[[str], list[str]] = None,
 ) -> Callable[[Callable], Command]: ...
 
@@ -116,7 +109,6 @@ def command(
     fn: Callable,
     *,
     help: None | Help = None,
-    version: None | str = None,
     extra_completions: None | Callable[[str], list[str]] = None,
 ) -> Command: ...
 
@@ -126,7 +118,6 @@ def command(
     fn: None | Callable = None,
     *,
     help: None | Help = None,
-    version: None | str = None,
     extra_completions: None | Callable[[str], list[str]] = None,
 ) -> Command | Callable[[Callable], Command]:
     """Wires a function up to the CLI.
@@ -153,8 +144,6 @@ def command(
     - `help`: optional, the documentation for the function. Appears when running with
         `-h` or `--help`. Should be a [`seali.Help`][] object. If not provided then a
         simple default is synthesized from the arguments.
-
-    - `version`: optional, the version to report when running with `-v` or `--version`.
 
     - `extra_completions`: optional, a function which will be called with the shell (for
         example `"fish"`) and which should return any extra completions for this
@@ -200,7 +189,5 @@ def command(
         ```
     """
     if fn is None:
-        return ft.partial(
-            command, help=help, version=version, extra_completions=extra_completions
-        )
-    return Command(fn, help, version, extra_completions)
+        return ft.partial(command, help=help, extra_completions=extra_completions)
+    return Command(fn, help, extra_completions)

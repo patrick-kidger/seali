@@ -43,7 +43,6 @@ def _fish_completions(
     cmd_name: str,
     arguments: Arguments,
     help: Help,
-    has_version: bool,
 ) -> list[str]:
     # Check if cmd_name contains spaces (indicating subcommands)
     cmd_parts = cmd_name.split(maxsplit=1)
@@ -67,18 +66,6 @@ def _fish_completions(
     line.extend(["-n", f"'{condition}'"])
     line.extend(["-s", "h", "-l", "help", "-f"])
     lines.append(" ".join(line))
-
-    # Version flag
-    if has_version:
-        line = ["complete", "-c", base_cmd]
-        contains_opt = "not __fish_contains_opt -s v version"
-        if subcommand_condition is not None:
-            condition = f"{subcommand_condition}; and {contains_opt}"
-        else:
-            condition = contains_opt
-        line.extend(["-n", f"'{condition}'"])
-        line.extend(["-s", "v", "-l", "version", "-f"])
-        lines.append(" ".join(line))
 
     # Positional arguments
     for i, param in enumerate(arguments.positional):
@@ -153,10 +140,9 @@ def completions(
     cmd_name: str,
     arguments: Arguments,
     help: Help,
-    has_version: bool,
 ) -> list[str]:
     help.validate(arguments)
     if shell == "fish":
-        return _fish_completions(cmd_name, arguments, help, has_version)
+        return _fish_completions(cmd_name, arguments, help)
     else:
         raise UsageError(f"Unsupported shell for completions '{shell}'")

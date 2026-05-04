@@ -74,7 +74,7 @@ class Arguments:
     short_to_long: dict[str, str]
 
     @classmethod
-    def from_callable(cls, fn: Callable, has_version: bool) -> "Arguments":
+    def from_callable(cls, fn: Callable) -> "Arguments":
         positional: list[Positional] = []
         variadic = None
         options: dict[str, Option] = {}
@@ -107,18 +107,11 @@ class Arguments:
                         )
                     if param.name == "completions":
                         raise ValueError(
-                            "Argument name 'completions' is reserved for use with `--completions <SHELL>`."
-                        )
-                    if has_version and param.name == "version":
-                        raise ValueError(
-                            "Argument name 'version' is reserved for use as `--version` to give the specified version."
+                            "Argument name 'completions' is reserved for use with "
+                            "`--completions <SHELL>`."
                         )
                     short = param.name[0]
-                    if (
-                        short not in short_to_long.keys()
-                        and not (has_version and short == "v")
-                        and not (short == "h")
-                    ):
+                    if short not in short_to_long.keys() and not (short == "h"):
                         short_to_long[short] = param.name
                     if param.annotation is bool:
                         if param.default is not False:

@@ -19,7 +19,6 @@ def group(
     *,
     default: Command,
     help: None | Help = None,
-    version: None | str = None,
     subcommands: Sequence[Command],
 ): ...
 
@@ -29,7 +28,6 @@ def group(
     *,
     name: str,
     help: None | Help = None,
-    version: None | str = None,
     subcommands: Sequence[Command],
 ): ...
 
@@ -39,7 +37,6 @@ def group(
     default: None | Command = None,
     name: None | str = None,
     help: None | Help = None,
-    version: None | str = None,
     subcommands: Sequence[Command],
 ) -> Command:
     """Group multiple commands, to provide subcommands.
@@ -50,7 +47,6 @@ def group(
         must be provided.
     - `name`: name. Either this or `default` must be provided.
     - `help`: help message, as [`seali.command`][].
-    - `version`: version, as [`seali.command`][].
     - `subcommands`: a list/tuple of subcommands.
 
     **Returns:**
@@ -119,7 +115,7 @@ def group(
             out.extend(subcommand.completions(shell, name))
         return out
 
-    @command(help=help, version=version, extra_completions=extra_completions)
+    @command(help=help, extra_completions=extra_completions)
     @_with_name(name)
     def run(subcommand: Subcommands = None, /, *remainder: str):  # pyright: ignore[reportInvalidTypeForm,reportRedeclaration]
         if subcommand is None:
