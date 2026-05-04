@@ -570,8 +570,9 @@ def test_fish_completion_without_help_or_version(capfd):
     with pytest.raises(SystemExit):
         foo(["--completions", "fish"])
     completion = capfd.readouterr().out
-    # Should NOT have help or version flags
-    assert "-l help" not in completion
+    # Should have help flag (always present)
+    assert "-l help" in completion
+    # Should NOT have version flag
     assert "-l version" not in completion
     # Should have the regular flag
     assert (

@@ -7,7 +7,7 @@ from typing import overload
 from ._arguments import Arguments, UsageError
 from ._completions import completions
 from ._doc_utils import doc_remove_return
-from ._help import Help
+from ._help import Help, Style
 
 
 @dataclasses.dataclass(frozen=True)
@@ -20,8 +20,33 @@ class Command:
     # Not computed eagerly to minimise overhead when launching the script.
     @ft.cached_property
     def arguments(self):
-        return Arguments.from_callable(
-            self.fn, self.help is not None, self.version is not None
+        return Arguments.from_callable(self.fn, True, self.version is not None)
+
+    @ft.cached_property
+    def resolved_help(self) -> Help:
+        if self.help is not None:
+            return self.help
+        arguments = self.arguments
+        all_arguments = {}
+        for p in arguments.positional:
+            all_arguments[p.name] = ""
+        if arguments.variadic is not None:
+            all_arguments[arguments.variadic.name] = ""
+        for name in arguments.options:
+            all_arguments[name] = ""
+        for f in arguments.flags:
+            all_arguments[f.name] = ""
+        option_prompts = {name: "value" for name in arguments.options}
+        parts = ["$USAGE"]
+        if len(arguments.positional) > 0 or arguments.variadic is not None:
+            parts.append("$POSITIONAL")
+        if len(arguments.options) > 0 or len(arguments.flags) > 0:
+            parts.append("$OPTIONS_AND_FLAGS")
+        return Help(
+            "\n\n".join(parts),
+            style=Style(),
+            arguments=all_arguments,
+            option_prompts=option_prompts,
         )
 
     def completions(self, shell: str, parent_command: None | str) -> list[str]:
@@ -31,7 +56,7 @@ class Command:
             if parent_command is None
             else parent_command + " " + self.fn.__name__,
             self.arguments,
-            self.help,
+            self.resolved_help,
             has_version=self.version is not None,
         )
         if self.extra_completions is not None:
@@ -42,14 +67,13 @@ class Command:
         try:
             if argv is None:
                 argv = sys.argv[1:]
-            if self.help is not None:
-                if argv == ["-h"] or argv == ["--help"]:
-                    # We don't eagerly check all `argv`. This is so that
-                    # `maincmd subcmd --help` can trigger the `subcmd`'s help, not the
-                    # `maincmd`'s help.
-                    # In the event of a usage error, we perform an eager check below.
-                    self.help.pager(self.fn.__name__, self.arguments)
-                    sys.exit(2)
+            if argv == ["-h"] or argv == ["--help"]:
+                # We don't eagerly check all `argv`. This is so that
+                # `maincmd subcmd --help` can trigger the `subcmd`'s help, not the
+                # `maincmd`'s help.
+                # In the event of a usage error, we perform an eager check below.
+                self.resolved_help.pager(self.fn.__name__, self.arguments)
+                sys.exit(2)
             if self.version is not None:
                 if argv == ["-v"] or argv == ["--version"]:
                     print(self.version)
@@ -65,11 +89,10 @@ class Command:
             try:
                 parsed = self.arguments.parse(list(argv))
             except UsageError:
-                if self.help is not None:
-                    for arg in argv:
-                        if arg in {"-h", "--help"}:
-                            self.help.pager(self.fn.__name__, self.arguments)
-                            sys.exit(2)
+                for arg in argv:
+                    if arg in {"-h", "--help"}:
+                        self.resolved_help.pager(self.fn.__name__, self.arguments)
+                        sys.exit(2)
                 raise
             return self.fn(*parsed.args, **parsed.kwargs)
         except KeyboardInterrupt:  # Control-C
@@ -128,7 +151,8 @@ def command(
             default.
 
     - `help`: optional, the documentation for the function. Appears when running with
-        `-h` or `--help`. Should be a [`seali.Help`][] object.
+        `-h` or `--help`. Should be a [`seali.Help`][] object. If not provided then a
+        simple default is synthesized from the arguments.
 
     - `version`: optional, the version to report when running with `-v` or `--version`.
 

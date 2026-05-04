@@ -309,7 +309,11 @@ class Help:
         ):
             name = self.style.positional(param.name)
             doc = inspect.cleandoc(self.arguments[param.name])
-            name_doc = _insert_tabstop_at_index(f"{name}: {doc}", self.style.indent)
+            if doc == "":
+                name_doc = name
+            else:
+                name_doc = f"{name}: {doc}"
+            name_doc = _insert_tabstop_at_index(name_doc, self.style.indent)
             positional.append("\n\n")
             positional.append(_indent(name_doc, " " * self.style.indent))
 
@@ -326,14 +330,20 @@ class Help:
             long_piece = self.style.option_or_flag("--" + name.replace("_", "-"))
             doc = inspect.cleandoc(self.arguments[name])
             if Flag(name) in arguments.flags:
-                name_doc = f"{short_piece} {long_piece}: {doc}"
+                if doc == "":
+                    name_doc = f"{short_piece} {long_piece}"
+                else:
+                    name_doc = f"{short_piece} {long_piece}: {doc}"
                 name_doc = _insert_tabstop_at_index(name_doc, self.style.indent)
                 options_and_flags.append("\n\n")
                 options_and_flags.append(_indent(name_doc, " " * self.style.indent))
             else:
                 prompt = inspect.cleandoc(self.option_prompts[name])
                 prompt = self.style.option_or_flag(f"<{prompt}>")
-                name_doc = f"{short_piece} {long_piece} {prompt}: {doc}"
+                if doc == "":
+                    name_doc = f"{short_piece} {long_piece} {prompt}"
+                else:
+                    name_doc = f"{short_piece} {long_piece} {prompt}: {doc}"
                 name_doc = _insert_tabstop_at_index(name_doc, self.style.indent)
                 options_and_flags.append("\n\n")
                 options_and_flags.append(_indent(name_doc, " " * self.style.indent))

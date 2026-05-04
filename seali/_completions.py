@@ -42,7 +42,7 @@ def _fish_completions_arg(annotation: Any) -> tuple[list[str], bool]:
 def _fish_completions(
     cmd_name: str,
     arguments: Arguments,
-    help: None | Help,
+    help: Help,
     has_version: bool,
 ) -> list[str]:
     # Check if cmd_name contains spaces (indicating subcommands)
@@ -58,16 +58,15 @@ def _fish_completions(
     lines = []
 
     # Help flag
-    if help is not None:
-        line = ["complete", "-c", base_cmd]
-        contains_opt = "not __fish_contains_opt -s h help"
-        if subcommand_condition is not None:
-            condition = f"{subcommand_condition}; and {contains_opt}"
-        else:
-            condition = contains_opt
-        line.extend(["-n", f"'{condition}'"])
-        line.extend(["-s", "h", "-l", "help", "-f"])
-        lines.append(" ".join(line))
+    line = ["complete", "-c", base_cmd]
+    contains_opt = "not __fish_contains_opt -s h help"
+    if subcommand_condition is not None:
+        condition = f"{subcommand_condition}; and {contains_opt}"
+    else:
+        condition = contains_opt
+    line.extend(["-n", f"'{condition}'"])
+    line.extend(["-s", "h", "-l", "help", "-f"])
+    lines.append(" ".join(line))
 
     # Version flag
     if has_version:
@@ -153,11 +152,10 @@ def completions(
     shell: str,
     cmd_name: str,
     arguments: Arguments,
-    help: None | Help,
+    help: Help,
     has_version: bool,
 ) -> list[str]:
-    if help is not None:
-        help.validate(arguments)
+    help.validate(arguments)
     if shell == "fish":
         return _fish_completions(cmd_name, arguments, help, has_version)
     else:

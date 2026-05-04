@@ -303,3 +303,74 @@ def test_subcommand(capfd):
         main(["sub", "--help"])
     captured = capfd.readouterr().out.strip()
     assert captured == "subhelp"
+
+
+def test_default_help_no_args(capfd):
+    @seali.command
+    def foo():
+        return "executed"
+
+    with pytest.raises(SystemExit):
+        foo(["--help"])
+    captured = capfd.readouterr().out
+    assert "Usage" in captured
+    assert "foo" in captured
+
+
+def test_default_help_short_flag(capfd):
+    @seali.command
+    def foo():
+        return "executed"
+
+    with pytest.raises(SystemExit):
+        foo(["-h"])
+    captured = capfd.readouterr().out
+    assert "Usage" in captured
+    assert "foo" in captured
+
+
+def test_default_help_with_positional(capfd):
+    @seali.command
+    def foo(x: int, y: str, /):
+        return (x, y)
+
+    with pytest.raises(SystemExit):
+        foo(["--help"])
+    captured = capfd.readouterr().out
+    assert "Usage" in captured
+    assert "Positional" in captured
+    assert "x" in captured
+    assert "y" in captured
+
+
+def test_default_help_with_options_and_flags(capfd):
+    @seali.command
+    def foo(*, opt: str, flag: bool = False):
+        return (opt, flag)
+
+    with pytest.raises(SystemExit):
+        foo(["--help"])
+    captured = capfd.readouterr().out
+    assert "Usage" in captured
+    assert "Options and flags" in captured
+    assert "opt" in captured
+    assert "flag" in captured
+
+
+def test_default_help_with_usage_error(capfd):
+    @seali.command
+    def foo(*, opt: int):
+        return opt
+
+    with pytest.raises(SystemExit):
+        foo(["--help", "--badopt"])
+    captured = capfd.readouterr().out
+    assert "Usage" in captured
+
+
+def test_default_help_does_not_interfere_with_execution():
+    @seali.command
+    def foo(x: int, /):
+        return x
+
+    assert foo(["42"]) == 42
